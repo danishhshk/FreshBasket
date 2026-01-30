@@ -37,7 +37,7 @@ class Product(db.Model):
     
     # Relationships
     cart_items = db.relationship('CartItem', backref='product', lazy=True, cascade='all, delete-orphan')
-    order_items = db.relationship('OrderItem', backref='product', lazy=True)
+    order_items = db.relationship('OrderItem', backref='product', lazy=True, cascade='delete')
     
     def __repr__(self):
         return f'<Product {self.name}>'

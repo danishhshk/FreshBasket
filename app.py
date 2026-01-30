@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from functools import wraps
 from datetime import datetime
 from dotenv import load_dotenv
+import click
 
 # Load environment variables
 load_dotenv()
@@ -97,7 +98,7 @@ class Product(db.Model):
     
     # Relationships
     cart_items = db.relationship('CartItem', backref='product', lazy=True, cascade='all, delete-orphan')
-    order_items = db.relationship('OrderItem', backref='product', lazy=True)
+    order_items = db.relationship('OrderItem', backref='product', lazy=True, cascade='delete')
     
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -840,6 +841,25 @@ def seed_db():
     
     db.session.commit()
     print('Database seeded with sample products.')
+
+
+@app.cli.command()
+@click.option('--username', prompt='Admin username', help='Username for the admin account')
+@click.option('--email', prompt='Admin email', help='Email for the admin account')
+@click.option('--password', prompt=True, hide_input=True, confirmation_prompt=True, help='Password for the admin account')
+def create_admin(username, email, password):
+    """Create an admin user"""
+    # Check if user already exists
+    if User.query.filter_by(username=username).first():
+        print(f'User {username} already exists.')
+        return
+    
+    admin = User(username=username, email=email, is_admin=True)
+    admin.set_password(password)
+    
+    db.session.add(admin)
+    db.session.commit()
+    print(f'Admin user {username} created successfully!')
 
 
 if __name__ == '__main__':
