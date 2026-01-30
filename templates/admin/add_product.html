@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Add Product - FreshBasket Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Add New Product</h1>
+        <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">← Back to Products</a>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" enctype="multipart/form-data" class="product-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Product Name *</label>
+                    <input type="text" id="name" name="name" class="form-input" required placeholder="e.g., Organic Tomatoes">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="">Select Category</option>
+                        <option value="vegetables">Vegetables</option>
+                        <option value="fruits">Fruits</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="bakery">Bakery</option>
+                        <option value="meat">Meat & Seafood</option>
+                        <option value="pantry">Pantry Essentials</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price ($) *</label>
+                    <input type="number" id="price" name="price" class="form-input" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock Quantity *</label>
+                    <input type="number" id="stock" name="stock" class="form-input" min="0" required placeholder="0">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" class="form-textarea" rows="4" required placeholder="Describe the product..."></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="image_file">Upload Product Image</label>
+                    <input type="file" id="image_file" name="image_file" class="form-input" accept="image/*" onchange="previewImage(event)">
+                    <small>Supported formats: JPG, PNG, GIF, WEBP (Max 16MB)</small>
+                    <div id="image_preview" class="image-preview" style="display: none;">
+                        <img id="preview_img" src="" alt="Preview">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="image_url">Or Enter Image URL</label>
+                    <input type="url" id="image_url" name="image_url" class="form-input" placeholder="https://example.com/image.jpg">
+                    <small>Use file upload above or enter a URL (file upload takes priority)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="unit">Unit of Measure</label>
+                    <input type="text" id="unit" name="unit" class="form-input" placeholder="e.g., kg, lb, piece" value="kg">
+                </div>
+
+                <div class="form-group">
+                    <label for="origin">Origin</label>
+                    <input type="text" id="origin" name="origin" class="form-input" placeholder="e.g., Local Farm, California">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">➕ Add Product</button>
+                <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview_img').src = e.target.result;
+            document.getElementById('image_preview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

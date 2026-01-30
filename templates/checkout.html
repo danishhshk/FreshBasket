@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - FreshBasket{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+    <h1>Checkout</h1>
+
+    <div class="checkout-container">
+        <!-- Order Review -->
+        <div class="checkout-review">
+            <h2>Order Review</h2>
+            <div class="order-items">
+                {% for item in cart_items %}
+                    <div class="review-item">
+                        <div class="review-item-name">
+                            <span>{{ item.product.name }}</span>
+                            <span class="review-item-qty">× {{ item.quantity }}</span>
+                        </div>
+                        <div class="review-item-price">${{ "%.2f"|format(item.get_subtotal()) }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="review-summary">
+                <div class="review-row">
+                    <span>Subtotal:</span>
+                    <span>${{ "%.2f"|format(total) }}</span>
+                </div>
+                <div class="review-row">
+                    <span>Tax (8%):</span>
+                    <span>${{ "%.2f"|format(total * 0.08) }}</span>
+                </div>
+                <div class="review-row review-total">
+                    <span>Total:</span>
+                    <span>${{ "%.2f"|format(total * 1.08) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="checkout-form-section">
+            <form method="POST" class="checkout-form">
+                <h2>Shipping Information</h2>
+                
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>Customer</label>
+                        <input type="text" value="{{ current_user.first_name }} {{ current_user.last_name }}" 
+                               class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" value="{{ current_user.email }}" class="form-control" disabled>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shipping_address">Shipping Address *</label>
+                    <textarea id="shipping_address" name="shipping_address" class="form-control" rows="4" 
+                              placeholder="Enter your complete shipping address (street, city, state, zip)" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Delivery Notes (Optional)</label>
+                    <textarea id="notes" name="notes" class="form-control" rows="3" 
+                              placeholder="Any special instructions for delivery..."></textarea>
+                </div>
+
+                <h2>Payment Method</h2>
+                <div class="form-section">
+                    <p class="payment-note">
+                        This is a demonstration platform. In production, integrate with Stripe or AWS Payment.
+                    </p>
+                    <div class="form-group">
+                        <input type="radio" id="card" name="payment_method" value="card" checked>
+                        <label for="card">Credit/Debit Card</label>
+                    </div>
+                </div>
+
+                <div class="checkout-actions">
+                    <a href="{{ url_for('view_cart') }}" class="btn btn-secondary">Back to Cart</a>
+                    <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
+                </div>
+
+                <div class="security-note">
+                    <span class="security-icon">🔒</span>
+                    <span>Your payment information is secure and encrypted with AWS KMS</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

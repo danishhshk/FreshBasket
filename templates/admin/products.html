@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - FreshBasket Admin{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Manage Products</h1>
+        <a href="{{ url_for('admin_add_product') }}" class="btn btn-primary">➕ Add New Product</a>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="filter-section">
+        <form method="GET" class="filter-form">
+            <input type="text" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}" class="form-input">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                <option value="vegetables" {% if request.args.get('category') == 'vegetables' %}selected{% endif %}>Vegetables</option>
+                <option value="fruits" {% if request.args.get('category') == 'fruits' %}selected{% endif %}>Fruits</option>
+                <option value="dairy" {% if request.args.get('category') == 'dairy' %}selected{% endif %}>Dairy</option>
+                <option value="bakery" {% if request.args.get('category') == 'bakery' %}selected{% endif %}>Bakery</option>
+                <option value="meat" {% if request.args.get('category') == 'meat' %}selected{% endif %}>Meat</option>
+                <option value="pantry" {% if request.args.get('category') == 'pantry' %}selected{% endif %}>Pantry</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-thumb">
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td><span class="category-badge">{{ product.category|title }}</span></td>
+                    <td>${{ "%.2f"|format(product.price) }}</td>
+                    <td>
+                        <span class="stock-badge {% if product.stock == 0 %}out{% elif product.stock < 10 %}low{% else %}ok{% endif %}">
+                            {{ product.stock }} units
+                        </span>
+                    </td>
+                    <td>
+                        {% if product.stock > 0 %}
+                        <span class="status-badge status-active">Active</span>
+                        {% else %}
+                        <span class="status-badge status-inactive">Out of Stock</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-buttons">
+                        <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-sm btn-secondary">✏️ Edit</a>
+                        <form method="POST" action="{{ url_for('admin_delete_product', product_id=product.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ product.name }}?');">
+                            <button type="submit" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not products %}
+    <div class="empty-state">
+        <p>No products found.</p>
+        <a href="{{ url_for('admin_add_product') }}" class="btn btn-primary">Add Your First Product</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

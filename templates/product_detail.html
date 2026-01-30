@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - FreshBasket{% endblock %}
+
+{% block content %}
+<div class="product-detail-page">
+    <div class="breadcrumb">
+        <a href="{{ url_for('home') }}">Home</a> > 
+        <a href="{{ url_for('products') }}">Products</a> > 
+        <a href="{{ url_for('products', category=product.category) }}">{{ product.category|title }}</a> > 
+        <span>{{ product.name }}</span>
+    </div>
+
+    <div class="product-detail-container">
+        <!-- Product Image -->
+        <div class="product-detail-image">
+            {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="main-image">
+            {% else %}
+                <div class="product-image-placeholder large">🥬</div>
+            {% endif %}
+        </div>
+
+        <!-- Product Details -->
+        <div class="product-detail-info">
+            <h1 class="product-detail-name">{{ product.name }}</h1>
+            <p class="product-detail-category">{{ product.category|title }}</p>
+            
+            <div class="product-detail-rating">
+                <span class="stars">⭐⭐⭐⭐⭐</span>
+                <span class="rating-count">(124 reviews)</span>
+            </div>
+
+            <div class="product-detail-description">
+                <h3>Description</h3>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="product-detail-pricing">
+                <div class="price-main">${{ "%.2f"|format(product.price) }}</div>
+                <div class="price-unit">per unit</div>
+            </div>
+
+            <div class="product-detail-stock">
+                {% if product.stock > 0 %}
+                    <span class="stock-status in-stock">✓ In Stock ({{ product.stock }} available)</span>
+                {% else %}
+                    <span class="stock-status out-of-stock">✗ Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <!-- Add to Cart Form -->
+            {% if product.stock > 0 %}
+                <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" class="add-to-cart-form">
+                    <div class="quantity-selector">
+                        <label for="quantity">Quantity:</label>
+                        <div class="quantity-input">
+                            <button type="button" class="qty-btn" onclick="decreaseQty()">−</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                            <button type="button" class="qty-btn" onclick="increaseQty()">+</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-add-cart">Add to Cart</button>
+                </form>
+            {% else %}
+                <button class="btn btn-disabled btn-lg">Out of Stock</button>
+            {% endif %}
+
+            <!-- Product Meta -->
+            <div class="product-detail-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">🚚</span>
+                    <span>Free shipping on orders over $50</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">🔒</span>
+                    <span>Secure AWS-encrypted checkout</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">⏱️</span>
+                    <span>Same-day delivery available</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+        <section class="related-products">
+            <h2>Related Products</h2>
+            <div class="products-grid">
+                {% for related in related_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            {% if related.image_url %}
+                                <img src="{{ related.image_url }}" alt="{{ related.name }}">
+                            {% else %}
+                                <div class="product-image-placeholder">🥬</div>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ related.name }}</h3>
+                            <p class="product-category">{{ related.category|title }}</p>
+                            <div class="product-footer">
+                                <span class="product-price">${{ "%.2f"|format(related.price) }}</span>
+                                <a href="{{ url_for('product_detail', product_id=related.id) }}" 
+                                   class="btn btn-sm btn-primary">View</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+</div>
+
+<script>
+function increaseQty() {
+    const input = document.getElementById('quantity');
+    const max = parseInt(input.max);
+    if (parseInt(input.value) < max) {
+        input.value = parseInt(input.value) + 1;
+    }
+}
+
+function decreaseQty() {
+    const input = document.getElementById('quantity');
+    if (parseInt(input.value) > 1) {
+        input.value = parseInt(input.value) - 1;
+    }
+}
+</script>
+{% endblock %}

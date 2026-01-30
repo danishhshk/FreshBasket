@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Products - FreshBasket{% endblock %}
+
+{% block content %}
+<div class="products-page">
+    <div class="products-header">
+        <h1>Fresh Produce Catalog</h1>
+        <p>Explore our selection of fresh fruits and vegetables</p>
+    </div>
+
+    <div class="products-container">
+        <!-- Sidebar Filters -->
+        <aside class="products-sidebar">
+            <div class="filter-section">
+                <h3>Filter by Category</h3>
+                <div class="filter-options">
+                    <a href="{{ url_for('products', category='all') }}" 
+                       class="filter-option {% if selected_category == 'all' %}active{% endif %}">
+                        All Products
+                    </a>
+                    {% for category in categories %}
+                        <a href="{{ url_for('products', category=category) }}" 
+                           class="filter-option {% if selected_category == category %}active{% endif %}">
+                            {{ category|title }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Search</h3>
+                <form method="GET" class="search-form">
+                    <input type="text" name="search" placeholder="Search products..." 
+                           value="{{ search_term }}" class="form-control">
+                    <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Products Grid -->
+        <div class="products-main">
+            {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                        <div class="product-card">
+                            <div class="product-image">
+                                {% if product.image_url %}
+                                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="product-image-placeholder">🥬</div>
+                                {% endif %}
+                                {% if product.stock < 10 %}
+                                    <span class="product-badge low-stock">Low Stock</span>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-name">{{ product.name }}</h3>
+                                <p class="product-category">{{ product.category|title }}</p>
+                                <p class="product-description">{{ product.description }}</p>
+                                <div class="product-meta">
+                                    <span class="product-stock">Stock: {{ product.stock }}</span>
+                                </div>
+                                <div class="product-footer">
+                                    <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}" 
+                                       class="btn btn-sm btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-products-message">
+                    <p>No products found matching your criteria.</p>
+                    <a href="{{ url_for('products') }}" class="btn btn-primary">Reset Filters</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

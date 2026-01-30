@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - FreshBasket{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage your FreshBasket store</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+                <h3>{{ total_users }}</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🥬</div>
+            <div class="stat-info">
+                <h3>{{ total_products }}</h3>
+                <p>Products</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+                <h3>{{ total_orders }}</h3>
+                <p>Total Orders</p>
+            </div>
+        </div>
+        
+        <div class="stat-card highlight">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+                <h3>{{ pending_orders }}</h3>
+                <p>Pending Orders</p>
+            </div>
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+                <h3>${{ "%.2f"|format(total_revenue) }}</h3>
+                <p>Total Revenue</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="admin-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('admin_add_product') }}" class="btn btn-primary">
+                <span>➕</span> Add Product
+            </a>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-secondary">
+                <span>🥬</span> Manage Products
+            </a>
+            <a href="{{ url_for('admin_orders', status='pending') }}" class="btn btn-secondary">
+                <span>📦</span> View Pending Orders
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                <span>👥</span> Manage Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="admin-section">
+        <h2>Recent Orders</h2>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ "%06d"|format(order.id) }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td><span class="status-badge status-{{ order.status }}">{{ order.status|title }}</span></td>
+                        <td>
+                            <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    {% if low_stock_products %}
+    <div class="admin-section alert-section">
+        <h2>⚠️ Low Stock Alerts</h2>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in low_stock_products %}
+                    <tr class="{% if product.stock == 0 %}out-of-stock{% endif %}">
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category|title }}</td>
+                        <td><span class="stock-badge low">{{ product.stock }} units</span></td>
+                        <td>${{ "%.2f"|format(product.price) }}</td>
+                        <td>
+                            <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-sm btn-secondary">Restock</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

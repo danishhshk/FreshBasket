@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - FreshBasket{% endblock %}
+
+{% block content %}
+<div class="cart-page">
+    <h1>Your Shopping Cart</h1>
+
+    {% if cart_items %}
+        <div class="cart-container">
+            <!-- Cart Items -->
+            <div class="cart-items-section">
+                <h2>Items in Cart ({{ cart_items|length }})</h2>
+                <div class="cart-items-list">
+                    {% for item in cart_items %}
+                        <div class="cart-item">
+                            <div class="cart-item-image">
+                                {% if item.product.image_url %}
+                                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="product-image-placeholder">🥬</div>
+                                {% endif %}
+                            </div>
+                            <div class="cart-item-details">
+                                <h3><a href="{{ url_for('product_detail', product_id=item.product.id) }}">
+                                    {{ item.product.name }}
+                                </a></h3>
+                                <p class="cart-item-category">{{ item.product.category|title }}</p>
+                                <p class="cart-item-price">${{ "%.2f"|format(item.product.price) }} each</p>
+                            </div>
+                            <div class="cart-item-quantity">
+                                <form method="POST" action="{{ url_for('update_cart_item', cart_item_id=item.id) }}" 
+                                      class="quantity-form">
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}"
+                                           onchange="this.form.submit()">
+                                </form>
+                            </div>
+                            <div class="cart-item-subtotal">
+                                <p class="subtotal-label">Subtotal</p>
+                                <p class="subtotal-amount">${{ "%.2f"|format(item.get_subtotal()) }}</p>
+                            </div>
+                            <form method="POST" action="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" 
+                                  class="cart-item-remove">
+                                <button type="submit" class="btn-remove" title="Remove from cart">🗑️</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary-section">
+                <div class="cart-summary">
+                    <h2>Order Summary</h2>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>${{ "%.2f"|format(total) }}</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Shipping:</span>
+                        <span class="shipping-cost">Free</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Tax:</span>
+                        <span>${{ "%.2f"|format(total * 0.08) }}</span>
+                    </div>
+                    
+                    <div class="summary-row summary-total">
+                        <span>Total:</span>
+                        <span>${{ "%.2f"|format(total * 1.08) }}</span>
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg btn-block">Proceed to Checkout</a>
+                    {% else %}
+                        <p class="login-message">
+                            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg btn-block">Log In to Checkout</a>
+                        </p>
+                        <p class="new-customer">New customer? <a href="{{ url_for('register') }}">Create an account</a></p>
+                    {% endif %}
+
+                    <a href="{{ url_for('products') }}" class="btn btn-secondary btn-block">Continue Shopping</a>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="trust-badges">
+                    <div class="badge">🔒 Secure Checkout</div>
+                    <div class="badge">✓ SSL Encrypted</div>
+                    <div class="badge">☁️ AWS Powered</div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2>Your cart is empty</h2>
+            <p>Start shopping to add items to your cart</p>
+            <a href="{{ url_for('products') }}" class="btn btn-primary btn-lg">Shop Now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
